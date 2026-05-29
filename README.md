@@ -1,59 +1,284 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Modern Shoes E-Commerce API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend API untuk aplikasi E-Commerce Sepatu Modern yang dibangun menggunakan Laravel 13 dan REST API Architecture.
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# 🛠️ Tech Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* Laravel 13
+* PHP 8.3+
+* MySQL
+* Laravel Sanctum
+* REST API
+* Eloquent ORM
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+# 📦 Modul yang Sudah Dibuat
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Category Management
 
-## Laravel Sponsors
+CRUD Category
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Endpoint:
 
-### Premium Partners
+GET /api/categories
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+POST /api/categories
 
-## Contributing
+GET /api/categories/{id}
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+PUT /api/categories/{id}
 
-## Code of Conduct
+DELETE /api/categories/{id}
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Brand Management
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+CRUD Brand
 
-## License
+Endpoint:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+GET /api/brands
+
+POST /api/brands
+
+GET /api/brands/{id}
+
+PUT /api/brands/{id}
+
+DELETE /api/brands/{id}
+
+---
+
+## Product Management
+
+CRUD Product
+
+Endpoint:
+
+GET /api/products
+
+POST /api/products
+
+GET /api/products/{id}
+
+PUT /api/products/{id}
+
+DELETE /api/products/{id}
+
+Filter:
+
+GET /api/products?search=nike
+
+GET /api/products?category=running
+
+GET /api/products?brand=nike
+
+GET /api/products?sort=latest
+
+GET /api/products?sort=low-price
+
+GET /api/products?sort=high-price
+
+---
+
+## Product Images
+
+CRUD Product Images
+
+Endpoint:
+
+GET /api/products/{product}/images
+
+POST /api/products/{product}/images
+
+GET /api/products/{product}/images/{image}
+
+PUT /api/products/{product}/images/{image}
+
+DELETE /api/products/{product}/images/{image}
+
+---
+
+## Product Variants
+
+CRUD Product Variants
+
+Endpoint:
+
+GET /api/products/{product}/variants
+
+POST /api/products/{product}/variants
+
+GET /api/products/{product}/variants/{variant}
+
+PUT /api/products/{product}/variants/{variant}
+
+DELETE /api/products/{product}/variants/{variant}
+
+---
+
+# 🗄️ Database Structure
+
+## categories
+
+| Field | Type   |
+| ----- | ------ |
+| id    | bigint |
+| name  | string |
+| slug  | string |
+
+---
+
+## brands
+
+| Field | Type   |
+| ----- | ------ |
+| id    | bigint |
+| name  | string |
+| slug  | string |
+
+---
+
+## products
+
+| Field          | Type    |
+| -------------- | ------- |
+| id             | bigint  |
+| category_id    | bigint  |
+| brand_id       | bigint  |
+| name           | string  |
+| slug           | string  |
+| sku            | string  |
+| price          | decimal |
+| original_price | decimal |
+| description    | text    |
+| is_new         | boolean |
+| is_trending    | boolean |
+| is_best_seller | boolean |
+| is_active      | boolean |
+
+---
+
+## product_images
+
+| Field      | Type    |
+| ---------- | ------- |
+| id         | bigint  |
+| product_id | bigint  |
+| image      | string  |
+| is_main    | boolean |
+
+---
+
+## product_variants
+
+| Field      | Type    |
+| ---------- | ------- |
+| id         | bigint  |
+| product_id | bigint  |
+| size       | string  |
+| color      | string  |
+| stock      | integer |
+
+---
+
+# 🔗 Relationships
+
+Category
+
+1 Category → Many Products
+
+Brand
+
+1 Brand → Many Products
+
+Product
+
+1 Product → Many Images
+
+1 Product → Many Variants
+
+---
+
+# 🚀 Installation
+
+Install dependency
+
+composer install
+
+Copy env
+
+cp .env.example .env
+
+Generate key
+
+php artisan key:generate
+
+Migrasi database
+
+php artisan migrate
+
+Seeder data
+
+php artisan db:seed
+
+Jalankan server
+
+php artisan serve
+
+---
+
+# 📌 Roadmap
+
+## Phase 1 (Selesai)
+
+* [x] Category CRUD
+* [x] Brand CRUD
+* [x] Product CRUD
+* [x] Product Image CRUD
+* [x] Product Variant CRUD
+* [x] API Resources
+* [x] Request Validation
+
+
+## Phase 2
+
+* Authentication (Sanctum)
+* Register
+* Login
+* Logout
+* User Profile
+
+## Phase 3
+
+* Cart Management
+* Wishlist
+* Checkout
+* Shipping Address
+
+## Phase 4
+
+* Order Management
+* Payment Integration
+* Invoice
+* Order History
+
+## Phase 5
+
+* Product Review & Rating
+* Dashboard Analytics
+* Sales Report
+
+---
+
+# 👨‍💻 Developer
+
+Rian Rahman Al Aziz
+
+Programmer & Full Stack Developer
+
+E-Commerce Project
