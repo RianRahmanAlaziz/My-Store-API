@@ -11,6 +11,9 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\AdminOrderController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -36,6 +39,18 @@ Route::middleware('auth:sanctum')->group(function () {
     // Address routes
     Route::apiResource('/addresses', AddressController::class);
     Route::patch('/addresses/{address}/default', [AddressController::class, 'setDefault']);
+
+    // Order routes
+    Route::post('/checkout', [CheckoutController::class, 'store']);
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{order}', [OrderController::class, 'show']);
+});
+
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+    Route::get('/orders', [AdminOrderController::class, 'index']);
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
+    Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus']);
+    Route::patch('/orders/{order}/payment-status', [AdminOrderController::class, 'updatePaymentStatus']);
 });
 
 Route::apiResource('/categories', CategoryController::class);
