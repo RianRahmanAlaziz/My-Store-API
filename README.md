@@ -245,7 +245,7 @@ php artisan serve
 * [x] Request Validation
 
 
-## Phase 2
+## Phase 2 (Selesai)
 
 * [x] Authentication (Sanctum)
 * [x] Register
@@ -255,23 +255,23 @@ php artisan serve
 
 ## Phase 3
 
-* Cart Management
-* Wishlist
-* Checkout
-* Shipping Address
+* [x] Cart Management
+* [ ] Wishlist
+* [ ] Checkout
+* [ ] Shipping Address
 
 ## Phase 4
 
-* Order Management
-* Payment Integration
-* Invoice
-* Order History
+* [ ] Order Management
+* [ ] Payment Integration
+* [ ] Invoice
+* [ ] Order History
 
 ## Phase 5
 
-* Product Review & Rating
-* Dashboard Analytics
-* Sales Report
+* [ ] Product Review & Rating
+* [ ] Dashboard Analytics
+* [ ] Sales Report
 
 ---
 
