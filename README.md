@@ -256,13 +256,14 @@ php artisan serve
 ## Phase 3
 
 * [x] Cart Management
-* [ ] Wishlist
-* [ ] Checkout
-* [ ] Shipping Address
+* [x] Wishlist
+* [x] Checkout
+* [x] Shipping Address
 
 ## Phase 4
 
-* [ ] Order Management
+* [x] Order Management
+* [x] Admin Middleware
 * [ ] Payment Integration
 * [ ] Invoice
 * [ ] Order History
