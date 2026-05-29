@@ -247,11 +247,11 @@ php artisan serve
 
 ## Phase 2
 
-* Authentication (Sanctum)
-* Register
-* Login
-* Logout
-* User Profile
+* [x] Authentication (Sanctum)
+* [x] Register
+* [x] Login
+* [x] Logout
+* [x] User Profile
 
 ## Phase 3
 
