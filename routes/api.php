@@ -15,47 +15,51 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AdminOrderController;
 
+//
+Route::prefix('v1')
+    ->middleware(['throttle:api', 'api.logger'])
+    ->group(function () {
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+        Route::middleware('throttle:auth')->group(function () {
+            Route::post('/register', [AuthController::class, 'register']);
+            Route::post('/login', [AuthController::class, 'login']);
+        });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/profile', [AuthController::class, 'profile']);
+        Route::apiResource('/categories', CategoryController::class);
+        Route::apiResource('/brands', BrandController::class);
+        Route::apiResource('/products', ProductController::class);
+        Route::apiResource('/products/{product}/images', ProductImageController::class);
+        Route::apiResource('/products/{product}/variants', ProductVariantController::class);
 
-    // Cart routes
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::post('/cart', [CartController::class, 'store']);
-    Route::put('/cart/{cart}', [CartController::class, 'update']);
-    Route::delete('/cart/{cart}', [CartController::class, 'destroy']);
-    Route::delete('/cart', [CartController::class, 'clear']);
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/logout', [AuthController::class, 'logout']);
+            Route::get('/profile', [AuthController::class, 'profile']);
 
-    // Wishlist routes
-    Route::get('/wishlist', [WishlistController::class, 'index']);
-    Route::post('/wishlist', [WishlistController::class, 'store']);
-    Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy']);
-    Route::delete('/wishlist/product/{product}', [WishlistController::class, 'destroyByProduct']);
+            Route::get('/cart', [CartController::class, 'index']);
+            Route::post('/cart', [CartController::class, 'store']);
+            Route::put('/cart/{cart}', [CartController::class, 'update']);
+            Route::delete('/cart/{cart}', [CartController::class, 'destroy']);
+            Route::delete('/cart', [CartController::class, 'clear']);
 
-    // Address routes
-    Route::apiResource('/addresses', AddressController::class);
-    Route::patch('/addresses/{address}/default', [AddressController::class, 'setDefault']);
+            Route::get('/wishlist', [WishlistController::class, 'index']);
+            Route::post('/wishlist', [WishlistController::class, 'store']);
+            Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy']);
+            Route::delete('/wishlist/product/{product}', [WishlistController::class, 'destroyByProduct']);
 
-    // Order routes
-    Route::post('/checkout', [CheckoutController::class, 'store']);
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-});
+            Route::apiResource('/addresses', AddressController::class);
+            Route::patch('/addresses/{address}/default', [AddressController::class, 'setDefault']);
 
-Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/orders', [AdminOrderController::class, 'index']);
-    Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
-    Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus']);
-    Route::patch('/orders/{order}/payment-status', [AdminOrderController::class, 'updatePaymentStatus']);
-});
+            Route::post('/checkout', [CheckoutController::class, 'store']);
+            Route::get('/orders', [OrderController::class, 'index']);
+            Route::get('/orders/{order}', [OrderController::class, 'show']);
+        });
 
-Route::apiResource('/categories', CategoryController::class);
-Route::apiResource('/brands', BrandController::class);
-Route::apiResource('/products', ProductController::class);
-
-Route::apiResource('/products/{product}/images', ProductImageController::class);
-Route::apiResource('/products/{product}/variants', ProductVariantController::class);
+        Route::middleware(['auth:sanctum', 'admin', 'throttle:admin'])
+            ->prefix('admin')
+            ->group(function () {
+                Route::get('/orders', [AdminOrderController::class, 'index']);
+                Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
+                Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus']);
+                Route::patch('/orders/{order}/payment-status', [AdminOrderController::class, 'updatePaymentStatus']);
+            });
+    });

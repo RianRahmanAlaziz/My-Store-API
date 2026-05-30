@@ -8,9 +8,12 @@ use App\Http\Resources\WishlistResource;
 use App\Models\Product;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponse;
 
 class WishlistController extends Controller
 {
+    use ApiResponse;
+
     public function index(Request $request)
     {
         $wishlists = Wishlist::query()
@@ -19,7 +22,10 @@ class WishlistController extends Controller
             ->latest()
             ->get();
 
-        return WishlistResource::collection($wishlists);
+        return $this->success(
+            WishlistResource::collection($wishlists),
+            'Wishlist retrieved successfully'
+        );
     }
 
     public function store(StoreWishlistRequest $request)
@@ -29,8 +35,11 @@ class WishlistController extends Controller
             'product_id' => $request->product_id,
         ]);
 
-        return new WishlistResource(
-            $wishlist->load(['product.images', 'product.brand', 'product.category'])
+        return $this->created(
+            new WishlistResource(
+                $wishlist->load(['product.images', 'product.brand', 'product.category'])
+            ),
+            'Product added to wishlist successfully'
         );
     }
 
@@ -40,9 +49,7 @@ class WishlistController extends Controller
 
         $wishlist->delete();
 
-        return response()->json([
-            'message' => 'Wishlist deleted successfully',
-        ]);
+        return $this->deleted('Wishlist deleted successfully');
     }
 
     public function destroyByProduct(Request $request, Product $product)
@@ -53,8 +60,6 @@ class WishlistController extends Controller
 
         $wishlist->delete();
 
-        return response()->json([
-            'message' => 'Wishlist deleted successfully',
-        ]);
+        return $this->deleted('Wishlist deleted successfully');
     }
 }

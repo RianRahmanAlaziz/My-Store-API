@@ -8,14 +8,20 @@ use App\Http\Requests\UpdateProductVariantRequest;
 use App\Http\Resources\ProductVariantResource;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Traits\ApiResponse;
 
 
 class ProductVariantController extends Controller
 {
+    use ApiResponse;
+
     public function index(Product $product)
     {
-        return ProductVariantResource::collection(
-            $product->variants()->latest()->get()
+        $variants = $product->variants()->latest()->get();
+
+        return $this->success(
+            ProductVariantResource::collection($variants),
+            'Product variants retrieved successfully'
         );
     }
 
@@ -27,14 +33,20 @@ class ProductVariantController extends Controller
             'stock' => $request->stock,
         ]);
 
-        return new ProductVariantResource($variant);
+        return $this->created(
+            new ProductVariantResource($variant),
+            'Product variant created successfully'
+        );
     }
 
     public function show(Product $product, ProductVariant $variant)
     {
         abort_if($variant->product_id !== $product->id, 404);
 
-        return new ProductVariantResource($variant);
+        return $this->success(
+            new ProductVariantResource($variant),
+            'Product variant retrieved successfully'
+        );
     }
 
     public function update(
@@ -50,7 +62,10 @@ class ProductVariantController extends Controller
             'stock' => $request->stock,
         ]);
 
-        return new ProductVariantResource($variant);
+        return $this->success(
+            new ProductVariantResource($variant),
+            'Product variant updated successfully'
+        );
     }
 
     public function destroy(Product $product, ProductVariant $variant)
@@ -59,8 +74,6 @@ class ProductVariantController extends Controller
 
         $variant->delete();
 
-        return response()->json([
-            'message' => 'Product variant deleted successfully',
-        ]);
+        return $this->deleted('Product variant deleted successfully');
     }
 }

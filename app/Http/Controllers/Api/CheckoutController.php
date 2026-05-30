@@ -11,9 +11,13 @@ use App\Models\Order;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Traits\ApiResponse;
+
 
 class CheckoutController extends Controller
 {
+    use ApiResponse;
+
     public function store(CheckoutRequest $request)
     {
         $user = $request->user();
@@ -28,23 +32,19 @@ class CheckoutController extends Controller
             ->get();
 
         if ($carts->isEmpty()) {
-            return response()->json([
-                'message' => 'Cart is empty',
-            ], 422);
+            return $this->error('Cart is empty', 422);
         }
 
         foreach ($carts as $cart) {
             if ($cart->variant && $cart->variant->stock < $cart->quantity) {
-                return response()->json([
-                    'message' => 'Stock is not enough for ' . $cart->product->name,
-                ], 422);
+                return $this->error(
+                    'Stock is not enough for ' . $cart->product->name,
+                    422
+                );
             }
         }
 
-        $subtotal = $carts->sum(function ($cart) {
-            return $cart->product->price * $cart->quantity;
-        });
-
+        $subtotal = $carts->sum(fn($cart) => $cart->product->price * $cart->quantity);
         $shippingCost = $subtotal > 500000 ? 0 : 25000;
         $discount = 0;
         $total = $subtotal + $shippingCost - $discount;
@@ -96,8 +96,9 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        return new OrderResource(
-            $order->load(['items', 'address'])
+        return $this->created(
+            new OrderResource($order->load(['items', 'address'])),
+            'Checkout success'
         );
     }
 }

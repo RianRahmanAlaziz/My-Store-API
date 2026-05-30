@@ -8,13 +8,19 @@ use App\Http\Requests\UpdateProductImageRequest;
 use App\Http\Resources\ProductImageResource;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Traits\ApiResponse;
 
 class ProductImageController extends Controller
 {
+    use ApiResponse;
+
     public function index(Product $product)
     {
-        return ProductImageResource::collection(
-            $product->images()->latest()->get()
+        $images = $product->images()->latest()->get();
+
+        return $this->success(
+            ProductImageResource::collection($images),
+            'Product images retrieved successfully'
         );
     }
 
@@ -29,14 +35,20 @@ class ProductImageController extends Controller
             'is_main' => $request->boolean('is_main'),
         ]);
 
-        return new ProductImageResource($image);
+        return $this->created(
+            new ProductImageResource($image),
+            'Product image created successfully'
+        );
     }
 
     public function show(Product $product, ProductImage $image)
     {
         abort_if($image->product_id !== $product->id, 404);
 
-        return new ProductImageResource($image);
+        return $this->success(
+            new ProductImageResource($image),
+            'Product image retrieved successfully'
+        );
     }
 
     public function update(
@@ -57,7 +69,10 @@ class ProductImageController extends Controller
             'is_main' => $request->boolean('is_main'),
         ]);
 
-        return new ProductImageResource($image);
+        return $this->success(
+            new ProductImageResource($image),
+            'Product image updated successfully'
+        );
     }
 
     public function destroy(Product $product, ProductImage $image)
@@ -66,8 +81,6 @@ class ProductImageController extends Controller
 
         $image->delete();
 
-        return response()->json([
-            'message' => 'Product image deleted successfully',
-        ]);
+        return $this->deleted('Product image deleted successfully');
     }
 }

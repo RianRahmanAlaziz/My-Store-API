@@ -9,9 +9,12 @@ use App\Http\Resources\CartResource;
 use App\Models\Cart;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponse;
 
 class CartController extends Controller
 {
+    use ApiResponse;
+
     public function index(Request $request)
     {
         $carts = Cart::query()
@@ -24,13 +27,13 @@ class CartController extends Controller
             return $cart->product->price * $cart->quantity;
         });
 
-        return response()->json([
-            'data' => CartResource::collection($carts),
+        return $this->success([
+            'items' => CartResource::collection($carts),
             'summary' => [
                 'total_items' => $carts->sum('quantity'),
                 'subtotal' => (float) $total,
             ],
-        ]);
+        ], 'Cart retrieved successfully');
     }
 
     public function store(StoreCartRequest $request)
@@ -41,9 +44,7 @@ class CartController extends Controller
                 ->firstOrFail();
 
             if ($variant->stock < $request->quantity) {
-                return response()->json([
-                    'message' => 'Stock is not enough',
-                ], 422);
+                return $this->error('Stock is not enough', 422);
             }
         }
 
@@ -54,6 +55,8 @@ class CartController extends Controller
 
         if ($cart) {
             $cart->increment('quantity', $request->quantity);
+            $message = 'Cart quantity updated successfully';
+            $status = 200;
         } else {
             $cart = Cart::create([
                 'user_id' => $request->user()->id,
@@ -61,10 +64,15 @@ class CartController extends Controller
                 'product_variant_id' => $request->product_variant_id,
                 'quantity' => $request->quantity,
             ]);
+
+            $message = 'Product added to cart successfully';
+            $status = 201;
         }
 
-        return new CartResource(
-            $cart->load(['product.mainImage', 'product.brand', 'variant'])
+        return $this->success(
+            new CartResource($cart->load(['product.mainImage', 'product.brand', 'variant'])),
+            $message,
+            $status
         );
     }
 
@@ -82,8 +90,9 @@ class CartController extends Controller
             'quantity' => $request->quantity,
         ]);
 
-        return new CartResource(
-            $cart->load(['product.mainImage', 'product.brand', 'variant'])
+        return $this->success(
+            new CartResource($cart->load(['product.mainImage', 'product.brand', 'variant'])),
+            'Cart updated successfully'
         );
     }
 
@@ -93,17 +102,13 @@ class CartController extends Controller
 
         $cart->delete();
 
-        return response()->json([
-            'message' => 'Cart item deleted successfully',
-        ]);
+        return $this->deleted('Cart item deleted successfully');
     }
 
     public function clear(Request $request)
     {
         Cart::where('user_id', $request->user()->id)->delete();
 
-        return response()->json([
-            'message' => 'Cart cleared successfully',
-        ]);
+        return $this->deleted('Cart cleared successfully');
     }
 }

@@ -8,36 +8,52 @@ use App\Http\Requests\UpdatePaymentStatusRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponse;
 
 class AdminOrderController extends Controller
 {
+    use ApiResponse;
+
     public function index(Request $request)
     {
+        $perPage = min((int) $request->get('per_page', 10), 50);
+
         $orders = Order::query()
             ->with(['user', 'items', 'address'])
             ->when($request->search, function ($query, $search) {
-                $query->where('invoice_number', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%");
-                    });
+                $query->where(function ($q) use ($search) {
+                    $q->where('invoice_number', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                });
             })
-            ->when($request->order_status, function ($query, $status) {
-                $query->where('order_status', $status);
-            })
-            ->when($request->payment_status, function ($query, $status) {
-                $query->where('payment_status', $status);
-            })
+            ->when(
+                $request->order_status,
+                fn($query, $status) =>
+                $query->where('order_status', $status)
+            )
+            ->when(
+                $request->payment_status,
+                fn($query, $status) =>
+                $query->where('payment_status', $status)
+            )
             ->latest()
-            ->paginate(10);
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return OrderResource::collection($orders);
+        return $this->paginated(
+            OrderResource::collection($orders),
+            'Admin orders retrieved successfully'
+        );
     }
 
     public function show(Order $order)
     {
-        return new OrderResource(
-            $order->load(['user', 'items', 'address'])
+        return $this->success(
+            new OrderResource($order->load(['user', 'items', 'address'])),
+            'Order detail retrieved successfully'
         );
     }
 
@@ -47,8 +63,9 @@ class AdminOrderController extends Controller
             'order_status' => $request->order_status,
         ]);
 
-        return new OrderResource(
-            $order->load(['user', 'items', 'address'])
+        return $this->success(
+            new OrderResource($order->load(['user', 'items', 'address'])),
+            'Order status updated successfully'
         );
     }
 
@@ -58,8 +75,9 @@ class AdminOrderController extends Controller
             'payment_status' => $request->payment_status,
         ]);
 
-        return new OrderResource(
-            $order->load(['user', 'items', 'address'])
+        return $this->success(
+            new OrderResource($order->load(['user', 'items', 'address'])),
+            'Payment status updated successfully'
         );
     }
 }

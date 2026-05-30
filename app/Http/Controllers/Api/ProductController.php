@@ -9,39 +9,77 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Traits\ApiResponse;
 
 class ProductController extends Controller
 {
+    use ApiResponse;
+
+
     public function index(Request $request)
     {
+        $perPage = min((int) $request->get('per_page', 12), 50);
+
         $products = Product::query()
             ->with(['category', 'brand', 'images', 'variants'])
-            ->where('is_active', true)
+            ->when(
+                $request->boolean('active_only', true),
+                fn($query) =>
+                $query->where('is_active', true)
+            )
             ->when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%");
-            })
-            ->when($request->category, function ($query, $category) {
-                $query->whereHas('category', function ($q) use ($category) {
-                    $q->where('slug', $category);
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
                 });
             })
-            ->when($request->brand, function ($query, $brand) {
-                $query->whereHas('brand', function ($q) use ($brand) {
-                    $q->where('slug', $brand);
-                });
-            })
-            ->when($request->sort === 'low-price', function ($query) {
-                $query->orderBy('price', 'asc');
-            })
-            ->when($request->sort === 'high-price', function ($query) {
-                $query->orderBy('price', 'desc');
-            })
-            ->when($request->sort === 'latest', function ($query) {
-                $query->latest();
-            })
-            ->paginate(12);
+            ->when(
+                $request->category,
+                fn($query, $category) =>
+                $query->whereHas('category', fn($q) => $q->where('slug', $category))
+            )
+            ->when(
+                $request->brand,
+                fn($query, $brand) =>
+                $query->whereHas('brand', fn($q) => $q->where('slug', $brand))
+            )
+            ->when(
+                $request->min_price,
+                fn($query, $price) =>
+                $query->where('price', '>=', $price)
+            )
+            ->when(
+                $request->max_price,
+                fn($query, $price) =>
+                $query->where('price', '<=', $price)
+            )
+            ->when(
+                $request->filled('is_new'),
+                fn($query) =>
+                $query->where('is_new', $request->boolean('is_new'))
+            )
+            ->when(
+                $request->filled('is_trending'),
+                fn($query) =>
+                $query->where('is_trending', $request->boolean('is_trending'))
+            )
+            ->when(
+                $request->filled('is_best_seller'),
+                fn($query) =>
+                $query->where('is_best_seller', $request->boolean('is_best_seller'))
+            )
+            ->when($request->sort === 'low-price', fn($query) => $query->orderBy('price', 'asc'))
+            ->when($request->sort === 'high-price', fn($query) => $query->orderBy('price', 'desc'))
+            ->when($request->sort === 'oldest', fn($query) => $query->oldest())
+            ->when(! in_array($request->sort, ['low-price', 'high-price', 'oldest']), fn($query) => $query->latest())
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return ProductResource::collection($products);
+        return $this->paginated(
+            ProductResource::collection($products),
+            'Products retrieved successfully'
+        );
     }
 
     public function store(StoreProductRequest $request)
@@ -61,15 +99,17 @@ class ProductController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        return new ProductResource(
-            $product->load(['category', 'brand', 'images', 'variants'])
+        return $this->created(
+            new ProductResource($product->load(['category', 'brand', 'images', 'variants'])),
+            'Product created successfully'
         );
     }
 
     public function show(Product $product)
     {
-        return new ProductResource(
-            $product->load(['category', 'brand', 'images', 'variants'])
+        return $this->success(
+            new ProductResource($product->load(['category', 'brand', 'images', 'variants'])),
+            'Product retrieved successfully'
         );
     }
 
@@ -90,8 +130,9 @@ class ProductController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        return new ProductResource(
-            $product->load(['category', 'brand', 'images', 'variants'])
+        return $this->success(
+            new ProductResource($product->load(['category', 'brand', 'images', 'variants'])),
+            'Product updated successfully'
         );
     }
 
@@ -99,8 +140,6 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return response()->json([
-            'message' => 'Product deleted successfully',
-        ]);
+        return $this->deleted('Product deleted successfully');
     }
 }
