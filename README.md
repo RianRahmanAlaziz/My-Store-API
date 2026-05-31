@@ -253,7 +253,7 @@ php artisan serve
 * [x] Logout
 * [x] User Profile
 
-## Phase 3
+## Phase 3 (Selesai)
 
 * [x] Cart Management
 * [x] Wishlist
