@@ -53,7 +53,8 @@ class ProductResource extends JsonResource
 
             'sizes' => $this->variants->pluck('size')->unique()->values(),
             'colors' => $this->variants->pluck('color')->unique()->values(),
-
+            'rating' => round($this->reviews_avg_rating ?? $this->reviews()->avg('rating') ?? 0, 1),
+            'reviews' => $this->reviews_count ?? $this->reviews()->count(),
             'is_new' => $this->is_new,
             'is_trending' => $this->is_trending,
             'is_best_seller' => $this->is_best_seller,

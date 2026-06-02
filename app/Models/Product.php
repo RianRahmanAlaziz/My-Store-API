@@ -30,6 +30,11 @@ class Product extends Model
         'is_active' => 'boolean',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -58,5 +63,10 @@ class Product extends Model
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 }

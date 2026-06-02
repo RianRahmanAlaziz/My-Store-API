@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AdminOrderController;
+use App\Http\Controllers\Api\ReviewController;
 
 //
 Route::prefix('v1')
@@ -30,6 +31,7 @@ Route::prefix('v1')
         Route::apiResource('/products', ProductController::class);
         Route::apiResource('/products/{product}/images', ProductImageController::class);
         Route::apiResource('/products/{product}/variants', ProductVariantController::class);
+        Route::get('/products/{product}/reviews', [ReviewController::class, 'index']);
 
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
@@ -52,6 +54,10 @@ Route::prefix('v1')
             Route::post('/checkout', [CheckoutController::class, 'store']);
             Route::get('/orders', [OrderController::class, 'index']);
             Route::get('/orders/{order}', [OrderController::class, 'show']);
+
+            Route::post('/products/{product}/reviews', [ReviewController::class, 'store']);
+            Route::put('/reviews/{review}', [ReviewController::class, 'update']);
+            Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
         });
 
         Route::middleware(['auth:sanctum', 'admin', 'throttle:admin'])

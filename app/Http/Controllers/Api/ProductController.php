@@ -22,6 +22,8 @@ class ProductController extends Controller
 
         $products = Product::query()
             ->with(['category', 'brand', 'images', 'variants'])
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
             ->when(
                 $request->boolean('active_only', true),
                 fn($query) =>
@@ -108,7 +110,11 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         return $this->success(
-            new ProductResource($product->load(['category', 'brand', 'images', 'variants'])),
+            new ProductResource(
+                $product->load(['category', 'brand', 'images', 'variants'])
+                    ->loadCount('reviews')
+                    ->loadAvg('reviews', 'rating')
+            ),
             'Product retrieved successfully'
         );
     }
