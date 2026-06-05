@@ -29,6 +29,14 @@ class CartResource extends JsonResource
                 'price' => (float) $this->product->price,
                 'image' => $this->product->mainImage?->image,
                 'brand' => $this->product->brand?->name,
+                'variants' => $this->product->variants->map(function ($variant) {
+                    return [
+                        'id' => $variant->id,
+                        'size' => $variant->size,
+                        'color' => $variant->color,
+                        'stock' => $variant->stock,
+                    ];
+                }),
             ],
 
             'variant' => $this->variant ? [

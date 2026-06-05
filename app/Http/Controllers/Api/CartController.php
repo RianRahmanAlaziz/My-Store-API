@@ -18,7 +18,7 @@ class CartController extends Controller
     public function index(Request $request)
     {
         $carts = Cart::query()
-            ->with(['product.mainImage', 'product.brand', 'variant'])
+            ->with(['product.mainImage', 'product.brand', 'product.variants', 'variant'])
             ->where('user_id', $request->user()->id)
             ->latest()
             ->get();
@@ -80,18 +80,34 @@ class CartController extends Controller
     {
         abort_if($cart->user_id !== $request->user()->id, 403);
 
-        if ($cart->variant && $cart->variant->stock < $request->quantity) {
-            return response()->json([
-                'message' => 'Stock is not enough',
-            ], 422);
+        if ($request->filled('product_variant_id')) {
+            $variant = ProductVariant::where('id', $request->product_variant_id)
+                ->where('product_id', $cart->product_id)
+                ->firstOrFail();
+
+            if ($variant->stock < $cart->quantity) {
+                return $this->error('Stock is not enough', 422);
+            }
+
+            $cart->update([
+                'product_variant_id' => $variant->id,
+            ]);
         }
 
-        $cart->update([
-            'quantity' => $request->quantity,
-        ]);
+        if ($request->filled('quantity')) {
+            if ($cart->variant && $cart->variant->stock < $request->quantity) {
+                return $this->error('Stock is not enough', 422);
+            }
+
+            $cart->update([
+                'quantity' => $request->quantity,
+            ]);
+        }
 
         return $this->success(
-            new CartResource($cart->load(['product.mainImage', 'product.brand', 'variant'])),
+            new CartResource(
+                $cart->load(['product.mainImage', 'product.brand', 'product.variants', 'variant'])
+            ),
             'Cart updated successfully'
         );
     }

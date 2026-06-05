@@ -59,6 +59,11 @@ class ProductResource extends JsonResource
             'is_trending' => $this->is_trending,
             'is_best_seller' => $this->is_best_seller,
             'is_active' => $this->is_active,
+            'is_wishlisted' => auth('sanctum')->check()
+                ? $this->wishlists()
+                ->where('user_id', auth('sanctum')->id())
+                ->exists()
+                : false,
         ];
     }
 }
