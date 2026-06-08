@@ -8,10 +8,10 @@ class Category extends Model
 {
     protected $fillable = ['name', 'slug'];
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
+    // public function getRouteKeyName(): string
+    // {
+    //     return 'slug';
+    // }
 
     public function products()
     {

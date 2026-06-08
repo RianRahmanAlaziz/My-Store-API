@@ -26,12 +26,14 @@ class ProductImageController extends Controller
 
     public function store(StoreProductImageRequest $request, Product $product)
     {
+        $path = $request->file('image')->store('products', 'public');
+
         if ($request->boolean('is_main')) {
             $product->images()->update(['is_main' => false]);
         }
 
         $image = $product->images()->create([
-            'image' => $request->image,
+            'image' => $path,
             'is_main' => $request->boolean('is_main'),
         ]);
 
