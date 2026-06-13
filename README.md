@@ -206,29 +206,41 @@ Product
 
 # 🚀 Installation
 
-Install dependency
+## Install Dependencies
 
+```bash
 composer install
+```
 
-Copy env
+## Copy env
 
+```bash
 cp .env.example .env
+```
 
-Generate key
+## Generate key
 
+```bash
 php artisan key:generate
+```
 
-Migrasi database
+## Migrasi database
 
+```bash
 php artisan migrate
+```
 
-Seeder data
+## Seeder data
 
+```bash
 php artisan db:seed
+```
 
-Jalankan server
+## Jalankan server
 
+```bash
 php artisan serve
+```
 
 ---
 
